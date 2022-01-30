@@ -1,0 +1,9 @@
+efficientnet-pytorch>=0.7.0
+hydra-core>=1.0.6
+lightly>=1.1.17
+pretrainedmodels>=0.7.4
+resnest>=0.0.5
+timm>=0.4.5
+ttach>=0.0.3
+easyocr>=1.4.1
+torchcam==0.2.0

@@ -1,0 +1,18 @@
+from kvt.utils import Registry
+
+BACKBONES = Registry("backbone")
+MODELS = Registry("models")
+LOSSES = Registry("losses")
+OPTIMIZERS = Registry("optimizer")
+SCHEDULERS = Registry("scheduler")
+DATASETS = Registry("dataset")
+TRANSFORMS = Registry("transform")
+HOOKS = Registry("hook")
+LIGHTNING_MODULES = Registry("lightning_module")
+METRICS = Registry("metrics")
+COLLATE_FNS = Registry("collate_fn")
+SAMPLERS = Registry("sampler")
+CALLBACKS = Registry("callbacks")
+HEADS = Registry("heads")
+NECKS = Registry("necks")
+MINERS = Registry("miners")

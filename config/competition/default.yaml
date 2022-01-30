@@ -1,0 +1,8 @@
+train_path: "${save_dir}/train.csv"
+original_train_path: "${input_dir}/train.csv"
+cite_path: "${input_dir}/cite_v2.csv"
+test_path: "${input_dir}/test.csv"
+target_column: "target"
+target_unique_values: 
+sample_submission_path: "${input_dir}/sample_submission.csv"
+num_classes: 1905

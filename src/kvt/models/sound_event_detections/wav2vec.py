@@ -1,0 +1,28 @@
+import torch
+import torch.nn as nn
+
+try:
+    from transformers import Wav2Vec2Model
+except ImportError:
+    Wav2Vec2Model = None
+
+
+class Wav2VecSequenceClassification(nn.Module):
+    def __init__(
+        self, wave2vec_model_name=None, hidden_size=768, num_classes=397
+    ):
+        super().__init__()
+
+        self.wav2vec2 = Wav2Vec2Model.from_pretrained(wave2vec_model_name)
+        # for param in self.wav2vec2.modules():
+        # param.requires_grad = False
+
+        self.classifier = nn.Sequential(
+            nn.Dropout(0.2), nn.Linear(hidden_size, num_classes),
+        )
+
+    def forward(self, x):
+        x = self.wav2vec2(x).last_hidden_state
+        x, _ = torch.max(x, dim=1)
+        logit = self.classifier(x)
+        return logit

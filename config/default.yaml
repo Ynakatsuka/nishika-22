@@ -1,0 +1,43 @@
+# @package _global_
+
+project: "nishika-22" # dont-stop-until-you-drop
+version: 1
+mode: train
+seed: 42
+numexpr_max_threads: "48"
+
+# disable python warnings if they annoy you
+disable_warnings: True
+
+# debug
+debug: False
+
+# pretty print config at the start of the run using Rich library
+print_config: False
+
+# working path
+work_dir: ${hydra:runtime.cwd}
+data_dir: ${work_dir}/data
+input_dir: ${work_dir}/data/input
+save_dir: ${work_dir}/data/output
+features_dir: ${work_dir}/data/output/features/
+
+experiment_name: ${hydra:job.override_dirname}
+
+defaults:
+  - augmentation: default
+  - competition: default
+  - dataset: default
+  - fold: default
+  - hook: default
+  - lightning_module: face_loss
+  - model: face_loss
+  - optimizer: default
+  - trainer: default
+  - experiment: null
+  - _self_
+
+hydra:
+  # output paths for hydra logs
+  run:
+    dir: ${work_dir}/logs/

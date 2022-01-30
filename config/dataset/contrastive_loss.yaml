@@ -1,0 +1,50 @@
+dataset:
+  - name: "PairOfAnchorPositivieNegativeDataset"
+    params:
+      csv_filename: train_and_cite.csv
+      input_column: "path"
+      target_column: ${competition.target_column}
+      target_unique_values: #  ${competition.target_unique_values}
+      num_classes: ${competition.num_classes}
+      input_dir: ${input_dir}
+      images_dir: ""
+      extension: ""
+      num_fold: ${fold.fold.n_splits}
+      idx_fold: ${trainer.idx_fold}
+      csv_input_dir: ${save_dir}
+      num_negatives: 1
+    splits:
+      - split: "train"
+  - name: "BaseImageDataset"
+    params:
+      csv_filename: ${save_dir}/simple_train_and_cite.csv
+      input_column: "path"
+      target_column: ${competition.target_column}
+      target_unique_values: #  ${competition.target_unique_values}
+      num_classes: 1905
+      input_dir: ${input_dir}
+      images_dir: ""
+      extension: ""
+      num_fold: ${fold.fold.n_splits}
+      idx_fold: ${trainer.idx_fold}
+      csv_input_dir: ${save_dir}
+    splits:
+      - split: "validation"
+  - name: "BaseImageDataset"
+    params:
+      csv_filename: ${save_dir}/test_and_cite.csv
+      input_column: "path"
+      target_column: ${competition.target_column}
+      target_unique_values: #  ${competition.target_unique_values}
+      input_dir: ${input_dir}
+      images_dir: ""
+      extension: ""
+      num_fold: ${fold.fold.n_splits}
+      idx_fold: ${trainer.idx_fold}
+      csv_input_dir: ${save_dir}
+    splits:
+      - split: "test"
+
+transform:
+  name: "base_image_transform"
+  num_preprocessor: 24

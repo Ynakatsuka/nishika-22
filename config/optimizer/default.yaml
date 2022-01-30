@@ -1,0 +1,11 @@
+optimizer:
+  name: "AdamW"
+  params:
+    lr: 1e-04
+    weight_decay: 1e-6 # 1e-6
+
+scheduler:
+  name: "CosineAnnealingWarmRestarts"
+  params:
+    T_0: 20
+    eta_min: 1e-6

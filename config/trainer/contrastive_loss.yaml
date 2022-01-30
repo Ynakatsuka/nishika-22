@@ -1,0 +1,57 @@
+skip_training: False
+auto_resume_from_checkpoint: False
+enable_final_evaluation: True
+find_unused_parameters:
+enable_debug_overflow: False
+feature_extraction: False
+
+idx_fold: 0
+
+train:
+  batch_size: 32
+
+evaluation:
+  batch_size: 64
+  save_predictions: True
+  dirpath: "${save_dir}/predictions/oof/${experiment_name}"
+  filename: "fold_${trainer.idx_fold}.npy"
+
+inference:
+  save_predictions: True
+  dirpath: "${save_dir}/predictions/test/${experiment_name}"
+  filename: "fold_${trainer.idx_fold}.npy"
+
+trainer:
+  resume_from_checkpoint: # '${save_dir}/models/${experiment_name}/fold_${trainer.idx_fold}_best.ckpt'
+  max_epochs: 100
+  check_val_every_n_epoch: 5
+  accumulate_grad_batches: 1
+  val_check_interval: 1.0
+  gradient_clip_val:
+  amp_backend: "native"
+  amp_level:
+  precision: 16
+  gpus: -1
+  accelerator: "ddp"
+  benchmark: True
+  deterministic: True
+  num_sanity_val_steps: 0
+  track_grad_norm: -1 # 2
+  stochastic_weight_avg: False
+
+logger:
+  _target_: pytorch_lightning.loggers.WandbLogger
+  project: ${project}
+  name: ${experiment_name}
+  group: # None
+
+callbacks:
+  ModelCheckpoint:
+    _target_: pytorch_lightning.callbacks.ModelCheckpoint
+    save_last: False
+    save_top_k: 1
+    monitor: "val_recall20_emb_overall" # val_loss
+    mode: "max"
+    dirpath: "${save_dir}/models/${experiment_name}"
+    filename: "fold_${trainer.idx_fold}_{epoch:03d}_{step:03d}"
+    # verbose: True

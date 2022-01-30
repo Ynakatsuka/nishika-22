@@ -1,0 +1,13 @@
+input_path: ${save_dir}/simple_train_and_cite.csv # ${competition.train_path}
+csv_filename: "train_fold_v000.csv"
+fold_column: "Fold"
+fold:
+  # src.kvt.utils.MultilabelStratifiedGroupKFold
+  # src.kvt.utils.RegressionStratifiedKFold
+  # sklearn.model_selection.StratifiedKFold
+  # sklearn.model_selection.GroupKFold
+  # sklearn.model_selection.KFold
+  _target_: sklearn.model_selection.KFold
+  n_splits: 5
+  random_state: ${seed}
+  shuffle: True

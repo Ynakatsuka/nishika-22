@@ -1,0 +1,65 @@
+# image size
+height: 224
+width: 224
+
+# augmentation inside dataset
+transform:
+  train:
+    - name: Resize
+      params:
+        p: 1.0
+        height: ${augmentation.height}
+        width: ${augmentation.width}
+    - name: Normalize
+      params:
+        p: 1.0
+        mean: [0.485, 0.456, 0.406]
+        std: [0.229, 0.224, 0.225]
+  validation:
+    - name: Resize
+      params:
+        p: 1.0
+        height: ${augmentation.height}
+        width: ${augmentation.width}
+    - name: Normalize
+      params:
+        p: 1.0
+        mean: [0.485, 0.456, 0.406]
+        std: [0.229, 0.224, 0.225]
+  test:
+    - name: Resize
+      params:
+        p: 1.0
+        height: ${augmentation.height}
+        width: ${augmentation.width}
+    - name: Normalize
+      params:
+        p: 1.0
+        mean: [0.485, 0.456, 0.406]
+        std: [0.229, 0.224, 0.225]
+
+# augmenatation like mixup
+strong_transform:
+  # name: mixup
+  # params:
+  #   p: 1
+  #   alpha: 0.5
+
+# augmentation on torch.Tensor
+# https://pytorch.org/vision/stable/transforms.html
+# https://kornia.readthedocs.io/en/latest/geometry.transform.html
+# https://github.com/asteroid-team/torch-audiomentations
+batch_transform:
+  source: "torchvision" # torchvision, kornia, torch_audiomentations
+  train:
+
+  validation:
+
+  test:
+
+# TTA: https://github.com/qubvel/ttach
+tta_transform:
+#   _target_: ttach.ClassificationTTAWrapper
+#   transforms:
+#     _target_: ttach.aliases.hflip_transform
+#   merge_mode: "mean"

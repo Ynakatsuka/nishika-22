@@ -1,0 +1,6 @@
+lightning_module:
+  name: "LightningModuleForPyTorchMetricLearning"
+  params:
+    disable_strong_transform_in_last_epochs: 5
+    enable_overall_evaluation: True
+    enable_numpy_evaluation: True
