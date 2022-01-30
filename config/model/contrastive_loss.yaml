@@ -1,0 +1,43 @@
+model:
+  name: "classification"
+  params:
+  backbone:
+    name: "tf_efficientnet_b0" # swin_large_patch4_window12_384, swin_large_patch4_window12_384_in22k, swin_base_patch4_window12_384
+    params:
+      num_classes: ${competition.num_classes}
+      pretrained: True
+      drop_rate: 0.1
+      # attn_drop_rate: 0.0
+      drop_path_rate: 0.1
+  neck:
+    # - name: "TripletAttention"
+    #   params:
+    - name: "GeMPool2d"
+      params:
+  head:
+    - name: "Flatten"
+      params:
+    - name: "Linear"
+      params:
+        in_features: "auto"
+        out_features: 256
+    - name: "BatchNorm1d"
+      params:
+        num_features: 256
+  others:
+    replace_bn: False
+    mixout: 0
+
+loss:
+  name: "ContrastiveLoss"
+  params:
+    pos_margin: 0
+    neg_margin: 1.0
+
+metrics:
+  recall20_emb:
+    name: "Recall20WithLogisticRegression"
+    params:
+      n_jobs: 1
+
+miner:

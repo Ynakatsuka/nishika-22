@@ -1,0 +1,75 @@
+# @package _global_
+
+# to execute this experiment run:
+# python run.py experiment=default
+
+defaults:
+  - override /augmentation: exp009
+  - override /competition: default
+  - override /dataset: contrastive_loss
+  - override /fold: default
+  - override /hook: default
+  - override /lightning_module: contrastive_loss
+  - override /model: contrastive_loss
+  - override /optimizer: default
+  - override /trainer: contrastive_loss
+#
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+comment: "bs16, epoch100, for non-swin"
+
+model:
+  model:
+    name: "classification"
+    params:
+    backbone:
+      name: "swin_large_patch4_window7_224" # swin_large_patch4_window12_384, swin_large_patch4_window12_384_in22k, swin_base_patch4_window12_384
+      params:
+        num_classes: ${competition.num_classes}
+        pretrained: True
+        drop_rate: 0.1
+        # attn_drop_rate: 0.0
+        drop_path_rate: 0.3
+        in_chans: 1
+    neck:
+      # - name: "TripletAttention"
+      #   params:
+      - name: "GeMPool2d"
+        params:
+    head:
+      - name: "Flatten"
+        params:
+      - name: "Linear"
+        params:
+          in_features: "auto"
+          out_features: 768
+      - name: "BatchNorm1d"
+        params:
+          num_features: 768
+
+trainer:
+  auto_resume_from_checkpoint: True
+  train:
+    batch_size: 16
+  evaluation:
+    batch_size: 32
+    save_predictions: True
+    dirpath: "${save_dir}/predictions/oof/${experiment_name}"
+    filename: "fold_${trainer.idx_fold}.npy"
+  trainer:
+    resume_from_checkpoint: # '${save_dir}/models/${experiment_name}/fold_${trainer.idx_fold}_best.ckpt'
+    max_epochs: 100
+    check_val_every_n_epoch: 10
+    accumulate_grad_batches: 2
+    val_check_interval: 1.0
+    gradient_clip_val:
+    amp_backend: "native"
+    amp_level:
+    precision: 16
+    gpus: -1
+    accelerator: "ddp"
+    benchmark: True
+    deterministic: True
+    num_sanity_val_steps: 0
+    track_grad_norm: -1 # 2
+    stochastic_weight_avg: False
