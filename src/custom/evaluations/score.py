@@ -1,11 +1,8 @@
-from functools import partial
-
 import kvt
 import numpy as np
 import pandas as pd
 import torch
 import torchmetrics
-from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import normalize
 

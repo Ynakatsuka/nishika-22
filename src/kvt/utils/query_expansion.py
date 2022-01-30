@@ -66,13 +66,15 @@ class QueryExpansion:
         N = len(query_embeddings)
         n_iters = int(np.ceil(N / batch_size))
         for i in tqdm(range(n_iters)):
-            D, I = index.search(
+            D, indices = index.search(
                 query_embeddings[batch_size * i : min(batch_size * (i + 1), N)],
                 k,
             )
             if reference_ids is not None:
-                I = np.apply_along_axis(lambda x: reference_ids[x], 1, I)
-            results_id.append(I)
+                indices = np.apply_along_axis(
+                    lambda x: reference_ids[x], 1, indices
+                )
+            results_id.append(indices)
             results_sim.append(D)
         return np.vstack(results_id), np.vstack(results_sim)
 

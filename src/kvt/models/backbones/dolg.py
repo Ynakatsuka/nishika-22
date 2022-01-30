@@ -7,7 +7,7 @@ from kvt.models.necks import GeMPool2d
 
 
 class MultiAtrous(nn.Module):
-    def __init__(self, in_channel, out_channel, size, dilation_rates=[3, 6, 9]):
+    def __init__(self, in_channel, out_channel, size, dilation_rates=(3, 6, 9)):
         super().__init__()
         self.dilated_convs = [
             nn.Conv2d(

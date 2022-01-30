@@ -10,8 +10,6 @@ from omegaconf import DictConfig
 
 
 class StatFeatures(BaseFeatureEngineeringDataset):
-    """Ref: https://www.kaggle.com/currypurin/petfinder-eda-lgb-meta-features-and-img-size"""
-
     def _engineer_features(self, image):
         height, width, _ = image.shape
         area = height * width

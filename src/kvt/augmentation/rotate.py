@@ -2,7 +2,6 @@ import random
 
 import albumentations.augmentations.functional as F
 import cv2
-import numpy as np
 from albumentations.core.transforms_interface import ImageOnlyTransform
 
 

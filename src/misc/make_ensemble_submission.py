@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 from kvt.utils import QueryExpansion, update_experiment_name
 from omegaconf import DictConfig
-from tqdm.auto import tqdm
 
 
 def normalize(embeddings):

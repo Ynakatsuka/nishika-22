@@ -147,11 +147,11 @@ def search_index(
     if apply_normalize:
         query_embeddings = normalize(query_embeddings)
 
-    D, I = index.search(query_embeddings, k)
+    D, indices = index.search(query_embeddings, k)
     if reference_ids is not None:
-        I = np.apply_along_axis(lambda x: reference_ids[x], 1, I)
+        indices = np.apply_along_axis(lambda x: reference_ids[x], 1, indices)
 
-    return D, I
+    return D, indices
 
 
 def get_result(
@@ -172,8 +172,10 @@ def get_result(
         torch.cuda.empty_cache()
     embeddings = np.hstack(embeddings)
     embeddings = normalize(embeddings)
-    D, I = search_index(index, embeddings, reference_ids=reference_ids, k=k)
-    return D, I, embeddings
+    D, indices = search_index(
+        index, embeddings, reference_ids=reference_ids, k=k
+    )
+    return D, indices, embeddings
 
 
 def load_config(experiment_name="", overrides=()):
@@ -234,7 +236,7 @@ def main():
     for i, filename in tqdm(enumerate(test["path"].values)):
         start = time.time()
         path = f"{config.input_dir}/apply_images/{filename}"
-        D, I, embeddings = get_result(
+        _, _, embeddings = get_result(
             path, preprocessors, transforms, models, index, reference_ids, k=20
         )
         end = time.time()

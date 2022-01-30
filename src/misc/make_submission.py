@@ -11,11 +11,11 @@ from tqdm.auto import tqdm
 def search_index(index, query_embeddings, reference_ids=None, k=20):
     results_id, results_sim = [], []
     for i in tqdm(range(query_embeddings.shape[0])):
-        D, I = index.search(np.expand_dims(query_embeddings[i], 0), k)
+        D, indices = index.search(np.expand_dims(query_embeddings[i], 0), k)
         if reference_ids is not None:
-            ids = [reference_ids[idx] for idx in I[0]]
+            ids = [reference_ids[idx] for idx in indices[0]]
         else:
-            ids = I[0]
+            ids = indices[0]
         results_id.append(ids)
         results_sim.append(D[0])
     return np.vstack(results_id), np.vstack(results_sim)
