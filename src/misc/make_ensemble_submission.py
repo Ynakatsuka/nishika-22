@@ -28,7 +28,6 @@ def main(config: DictConfig) -> None:
         "experiment=exp016,model.model.backbone.name=convnext_large_in22ft1k",
         "experiment=exp012,model.model.backbone.name=swin_base_patch4_window7_224",
         "experiment=exp032",
-        "experiment=exp033",
     ]
     embedding_paths = [
         f"/home/working/data/output/predictions/test/{name}/test_fold_0.npy"

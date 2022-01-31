@@ -1,5 +1,4 @@
 import numpy as np
-from tqdm.auto import tqdm
 
 try:
     import faiss
@@ -65,7 +64,7 @@ class QueryExpansion:
         results_id, results_sim = [], []
         N = len(query_embeddings)
         n_iters = int(np.ceil(N / batch_size))
-        for i in tqdm(range(n_iters)):
+        for i in range(n_iters):
             D, indices = index.search(
                 query_embeddings[batch_size * i : min(batch_size * (i + 1), N)],
                 k,
@@ -82,9 +81,7 @@ class QueryExpansion:
         embeddings /= np.linalg.norm(embeddings, axis=1).reshape((-1, 1))
         return embeddings
 
-    def query_expansion(
-        self, sims, ids, original_embeddings, reference_embeddings
-    ):
+    def expand(self, sims, ids, original_embeddings, reference_embeddings):
         assert len(sims) == len(original_embeddings)
 
         if self.normalize_similarity:
@@ -108,6 +105,30 @@ class QueryExpansion:
 
         return self.normalize(embeddings)
 
+    def query_expansion(
+        self, original_embeddings, reference_embeddings, index=None
+    ):
+        if index is None:
+            ids, sims = self.search_index(
+                reference_embeddings,
+                original_embeddings,
+                reference_ids=None,
+                k=self.k,
+                batch_size=self.batch_size,
+            )
+        else:
+            ids, sims = self.search_index(
+                index,
+                original_embeddings,
+                reference_ids=None,
+                k=self.k,
+                batch_size=self.batch_size,
+            )
+        embeddings = self.expand(
+            sims, ids, original_embeddings, reference_embeddings
+        )
+        return embeddings
+
     def __call__(self, query_embeddings, reference_embeddings):
         query_embeddings = self.normalize(query_embeddings)
         reference_embeddings = self.normalize(reference_embeddings)
@@ -122,28 +143,14 @@ class QueryExpansion:
             calculate_at_once = True
 
         for _ in range(self.n_reference_update_iter):
-            ids, sims = self.search_index(
-                reference_embeddings,
-                reference_embeddings,
-                reference_ids=None,
-                k=self.k,
-                batch_size=self.batch_size,
-            )
             reference_embeddings = self.query_expansion(
-                sims, ids, reference_embeddings, reference_embeddings
+                reference_embeddings, reference_embeddings
             )
 
         if not calculate_at_once:
             for _ in range(self.n_query_update_iter):
-                ids, sims = self.search_index(
-                    reference_embeddings,
-                    query_embeddings,
-                    reference_ids=None,
-                    k=self.k,
-                    batch_size=self.batch_size,
-                )
                 query_embeddings = self.query_expansion(
-                    sims, ids, query_embeddings, reference_embeddings
+                    query_embeddings, reference_embeddings
                 )
         else:
             query_embeddings = reference_embeddings[-len(query_embeddings) :]

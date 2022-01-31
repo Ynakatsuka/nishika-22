@@ -76,6 +76,8 @@ def run(config):
     # ------------------------------
     # Inference
     # ------------------------------
+    lightning_module.eval()
+
     # inference on test
     predictor = pl.Trainer(gpus=1)
     outputs = predictor.predict(

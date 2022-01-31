@@ -21,7 +21,12 @@ from kvt.builder import (
 from kvt.initialization import initialize as kvt_initialize
 from kvt.models.layers import Identity
 from kvt.registry import TRANSFORMS
-from kvt.utils import build_from_config, check_attr, combine_model_parts
+from kvt.utils import (
+    QueryExpansion,
+    build_from_config,
+    check_attr,
+    combine_model_parts,
+)
 from omegaconf import OmegaConf
 from tqdm.auto import tqdm
 
@@ -155,7 +160,15 @@ def search_index(
 
 
 def get_result(
-    path_or_image, preprocessors, transforms, models, index, reference_ids, k=20
+    path_or_image,
+    preprocessors,
+    transforms,
+    models,
+    qe,
+    index,
+    reference_embeddings,
+    reference_ids,
+    k=20,
 ):
     if isinstance(path_or_image, str):
         img = jpeg.JPEG(path_or_image).decode()
@@ -170,8 +183,12 @@ def get_result(
         with torch.inference_mode():
             embeddings.append(normalize(model(x).cpu().detach().numpy()))
         torch.cuda.empty_cache()
-    embeddings = np.hstack(embeddings)
-    embeddings = normalize(embeddings)
+    embeddings = normalize(np.hstack(embeddings)).astype("float32")
+    for _ in range(qe.n_query_update_iter):
+        embeddings = qe.query_expansion(
+            embeddings, reference_embeddings, index=index
+        )
+
     D, indices = search_index(
         index, embeddings, reference_ids=reference_ids, k=k
     )
@@ -228,20 +245,41 @@ def main():
         transforms.append(load_augmentation(config))
         preprocessors.append(lambda x: x)
 
-    # create index
-    index = create_index(reference_embeddings, use_cuda=True)
+    # query expansion
+    qe = QueryExpansion(
+        alpha=1,
+        k=50,
+        similarity_threshold=0.7,
+        normalize_similarity=True,
+        strategy_to_deal_original="add",
+        n_query_update_iter=1,
+        n_reference_update_iter=0,
+        batch_size=10,
+    )
+    _, reference_embeddings = qe(test_embeddings, reference_embeddings)
+    index = qe.create_index(reference_embeddings)
 
     # benchmark
     results = []
-    for i, filename in tqdm(enumerate(test["path"].values)):
+    for _i, filename in tqdm(
+        enumerate(test["path"].values), total=len(test["path"])
+    ):
         start = time.time()
         path = f"{config.input_dir}/apply_images/{filename}"
         _, _, embeddings = get_result(
-            path, preprocessors, transforms, models, index, reference_ids, k=20
+            path,
+            preprocessors,
+            transforms,
+            models,
+            qe,
+            index,
+            reference_embeddings,
+            reference_ids,
+            k=20,
         )
         end = time.time()
-        assert embeddings == test_embeddings[i]
         results.append(end - start)
+        # assert np.sum(np.abs(embeddings.flatten() - test_embeddings[_i])) <= 1e-5
     print(pd.Series(results).describe())
 
 

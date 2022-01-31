@@ -5,7 +5,6 @@ import pandas as pd
 import streamlit as st
 from benchmark import (
     EXPERIMENT_NAMES,
-    create_index,
     get_result,
     load_augmentation,
     load_config,
@@ -13,6 +12,7 @@ from benchmark import (
     normalize,
 )
 from kvt.initialization import initialize as kvt_initialize
+from kvt.utils import QueryExpansion
 from PIL import Image
 
 
@@ -49,13 +49,41 @@ def load():
         transforms.append(load_augmentation(config))
         preprocessors.append(lambda x: x)
 
-    # create index
-    index = create_index(reference_embeddings, use_cuda=True)
+    qe = QueryExpansion(
+        alpha=1,
+        k=50,
+        similarity_threshold=0.7,
+        normalize_similarity=True,
+        strategy_to_deal_original="add",
+        n_query_update_iter=1,
+        n_reference_update_iter=0,
+        batch_size=10,
+    )
+    _, reference_embeddings = qe(reference_embeddings[:1], reference_embeddings)
+    index = qe.create_index(reference_embeddings)
 
-    return config, preprocessors, transforms, models, index, reference_ids
+    return (
+        config,
+        preprocessors,
+        transforms,
+        models,
+        qe,
+        index,
+        reference_embeddings,
+        reference_ids,
+    )
 
 
-def main(config, preprocessors, transforms, models, index, reference_ids):
+def main(
+    config,
+    preprocessors,
+    transforms,
+    models,
+    qe,
+    index,
+    reference_embeddings,
+    reference_ids,
+):
     # draw the page
     st.title("Similar Trade Mark Image Search")
 
@@ -74,7 +102,9 @@ def main(config, preprocessors, transforms, models, index, reference_ids):
             preprocessors,
             transforms,
             models,
+            qe,
             index,
+            reference_embeddings,
             reference_ids,
             k=k,
         )
@@ -100,5 +130,23 @@ def main(config, preprocessors, transforms, models, index, reference_ids):
 if __name__ == "__main__":
     warnings.filterwarnings("ignore")
     kvt_initialize()
-    config, preprocessors, transforms, models, index, reference_ids = load()
-    main(config, preprocessors, transforms, models, index, reference_ids)
+    (
+        config,
+        preprocessors,
+        transforms,
+        models,
+        qe,
+        index,
+        reference_embeddings,
+        reference_ids,
+    ) = load()
+    main(
+        config,
+        preprocessors,
+        transforms,
+        models,
+        qe,
+        index,
+        reference_embeddings,
+        reference_ids,
+    )

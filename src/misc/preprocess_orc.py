@@ -67,9 +67,9 @@ def preprocess_pipeline(img):
 
 
 def main():
-    train = pd.read_csv("../data/input/train.csv")
-    test = pd.read_csv("../data/input/test.csv")
-    cite = pd.read_csv("../data/input/cite_v2.csv")
+    train = pd.read_csv("data/input/train.csv")
+    test = pd.read_csv("data/input/test.csv")
+    cite = pd.read_csv("data/input/cite_v2.csv")
 
     cite["path"] = cite["path"].apply(lambda x: f"cite_images/{x}")
     train["path"] = train["path"].apply(lambda x: f"apply_images/{x}")

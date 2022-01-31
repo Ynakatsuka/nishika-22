@@ -214,6 +214,7 @@ def run(config):
     ):
         log.info("Enabled TTA wrapper")
         lightning_module.enable_tta(tta_wrapper)
+        lightning_module.eval()
         trainer.validate(
             model=lightning_module,
             dataloaders=dataloaders["validation"],
@@ -227,6 +228,7 @@ def run(config):
     # inference on validation (DDP seems to destroy the order of samples)
     if is_master:
         lightning_module.enable_tta(tta_wrapper)
+        lightning_module.eval()
         predictor = pl.Trainer(logger=logger, gpus=1)
         outputs = predictor.predict(
             model=lightning_module,
