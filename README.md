@@ -1,6 +1,6 @@
 <div align="center">
 
-# X place solution of "AI× 商標：イメージサーチコンペティション（類似商標画像の検出）"
+# 5th place solution of "AI× 商標：イメージサーチコンペティション（類似商標画像の検出）"
 
 <a href="https://pytorch.org/get-started/locally/"><img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-ee4c2c?logo=pytorch&logoColor=white"></a>
 <a href="https://pytorchlightning.ai/"><img alt="Lightning" src="https://img.shields.io/badge/-Lightning-792ee5?logo=pytorchlightning&logoColor=white"></a>
@@ -46,7 +46,7 @@ docker-compose up -d
 docker-compose exec kaggle ./bin/final.sh
 ```
 
-- Benchmark solution
+- Benchmark test
 
 ```
 docker-compose exec kaggle python src/benchmark/benchmark.py
@@ -65,7 +65,8 @@ Then, access here: http://localhost:8501/
 - Format code
 
 ```
-pysen run lint && pysen run format
+pysen run lint
+pysen run format
 ```
 
 ## References
